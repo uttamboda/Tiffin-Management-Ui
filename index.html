@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -51,87 +53,208 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="main-container">
-        <div class="d-flex justify-content-between align-items-center mb-5">
+    <main class="main-container" id="analyticsMainContainer">
+        <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
             <div>
-                <h1 class="fw-bold mb-1">Admin Dashboard</h1>
-                <p class="text-secondary">Welcome to Tiffin Management System overview.</p>
+                <h2 class="fw-bold mb-1">Admin Dashboard (Analytics)</h2>
+                <p class="text-secondary mb-0">View key metrics and insights for your business.</p>
+            </div>
+            <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-2"
+                onclick="loadAnalyticsDashboard()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+
+        <!-- Summary Cards Row -->
+        <div class="row g-4 mb-5" id="analyticsSummaryRow">
+            <!-- Most Ordered Dish Card -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="premium-card top-dish-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 fw-bold text-uppercase top-dish-title" style="letter-spacing: 0.5px;">Most
+                            Ordered Dish
+                        </h6>
+                        <div class="bg-danger bg-opacity-10 rounded-circle p-2 text-danger shadow-sm top-dish-icon">
+                            <i class="bi bi-fire fs-5"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold text-danger mb-0 text-truncate top-dish-text">
+                        <span class="me-1">🔥</span><span id="mostOrderedDishCardDisplay">--</span>
+                    </h4>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="premium-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0 fw-bold text-uppercase" style="letter-spacing: 0.5px;">Total Users
+                        </h6>
+                        <div class="icon-success bg-opacity-10 rounded-circle p-2 text-success shadow-sm">
+                            <i class="bi bi-people-fill fs-5"></i>
+                        </div>
+                    </div>
+                    <h2 class="fw-bold text-dark mb-0" id="statTotalUsers">--</h2>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="premium-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0 fw-bold text-uppercase" style="letter-spacing: 0.5px;">Total Orders
+                        </h6>
+                        <div class="icon-primary bg-opacity-10 rounded-circle p-2 text-primary shadow-sm">
+                            <i class="bi bi-cart-check-fill fs-5"></i>
+                        </div>
+                    </div>
+                    <h2 class="fw-bold text-dark mb-0" id="statTotalOrders">--</h2>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="premium-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0 fw-bold text-uppercase" style="letter-spacing: 0.5px;">Total Revenue
+                        </h6>
+                        <div class="bg-success bg-opacity-10 rounded-circle p-2 text-success shadow-sm">
+                            <i class="bi bi-currency-rupee fs-5"></i>
+                        </div>
+                    </div>
+                    <h2 class="fw-bold text-success mb-0" id="statTotalRevenue">₹--</h2>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="premium-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0 fw-bold text-uppercase" style="letter-spacing: 0.5px;">Today Orders
+                        </h6>
+                        <div class="bg-warning bg-opacity-10 rounded-circle p-2 text-warning shadow-sm">
+                            <i class="bi bi-calendar-check fs-5"></i>
+                        </div>
+                    </div>
+                    <h2 class="fw-bold text-warning mb-0" id="statTodayOrders">--</h2>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="premium-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0 fw-bold text-uppercase" style="letter-spacing: 0.5px;">Daily Revenue
+                        </h6>
+                        <div class="bg-info bg-opacity-10 rounded-circle p-2 text-info shadow-sm">
+                            <i class="bi bi-cash-stack fs-5"></i>
+                        </div>
+                    </div>
+                    <h2 class="fw-bold text-info mb-0" id="statTodayRevenue">₹--</h2>
+                </div>
             </div>
         </div>
 
-        <div class="row g-4">
-            <!-- Manage Menu Card -->
-            <div class="col-md-6 col-lg-3">
-                <div class="dashboard-card card p-4 border-0">
-                    <div class="card-body p-0">
-                        <div class="card-icon-container icon-primary">
-                            <i class="bi bi-card-list"></i>
+        <!-- Profit Calculator & Top User Row -->
+        <div class="row g-4 mb-5">
+            <!-- Profit Calculator -->
+            <div class="col-lg-6">
+                <div class="premium-card p-4">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded"><i
+                                class="bi bi-calculator text-primary fs-5"></i></div>
+                        Profit Calculator
+                    </h5>
+                    <p class="text-muted small mb-4">Enter your total expenses to calculate net profit or loss based on
+                        total revenue.</p>
+
+                    <div class="p-4 bg-light rounded-4 border mb-4">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-8">
+                                <label class="small fw-bold text-secondary mb-2 text-uppercase"
+                                    style="letter-spacing: 0.5px;">Total Expense (₹)</label>
+                                <input type="number" id="expenseInput"
+                                    class="form-control form-control-lg border-0 shadow-sm" placeholder="e.g. 500.00"
+                                    step="0.01">
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-primary-custom w-100 btn-lg shadow-sm"
+                                    onclick="calculateProfit()">Calculate</button>
+                            </div>
                         </div>
-                        <h5 class="card-title">Manage Menu</h5>
-                        <p class="card-text">Add, edit, or delete tiffin dishes.</p>
-                        <a href="menu.html" class="btn btn-primary-custom w-100">
-                            Go to Menu <i class="bi bi-arrow-right ms-2"></i>
-                        </a>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded-4 border">
+                        <div>
+                            <h6 class="text-muted fw-bold mb-1 text-uppercase"
+                                style="font-size: 0.8rem; letter-spacing: 0.5px;">Outcome</h6>
+                            <h3 id="profitResultDisplay" class="fw-bold mb-0 text-dark">--</h3>
+                        </div>
+                        <div class="text-end">
+                            <span id="profitResultLabel"
+                                class="badge bg-secondary px-3 py-2 rounded-pill shadow-sm">Enter expense</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Manage Users Card -->
-            <div class="col-md-6 col-lg-3">
-                <div class="dashboard-card card p-4 border-0">
-                    <div class="card-body p-0">
-                        <div class="card-icon-container icon-success">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                        <h5 class="card-title">Manage Users</h5>
-                        <p class="card-text">View existing users or register new ones.</p>
-                        <a href="users.html" class="btn btn-primary-custom w-100"
-                            style="background-color: var(--success-color); border-color: var(--success-color);">
-                            Go to Users <i class="bi bi-arrow-right ms-2"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <!-- Top User Details -->
+            <div class="col-lg-6">
+                <div class="premium-card p-4">
+                    <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                        <div class="bg-warning bg-opacity-10 p-2 rounded"><i
+                                class="bi bi-award-fill text-warning fs-5"></i></div>
+                        Top Customer
+                    </h5>
 
-            <!-- Create Order Card -->
-            <div class="col-md-6 col-lg-3">
-                <div class="dashboard-card card p-4 border-0">
-                    <div class="card-body p-0">
-                        <div class="card-icon-container icon-warning">
-                            <i class="bi bi-cart-plus-fill"></i>
+                    <div class="d-flex align-items-center p-4 bg-light rounded-4 border mb-4">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-4 shadow-sm"
+                            style="width: 70px; height: 70px;">
+                            <i class="bi bi-person-fill fs-1"></i>
                         </div>
-                        <h5 class="card-title">Create Order</h5>
-                        <p class="card-text">Assemble tiffin boxes by selecting items.</p>
-                        <a href="orders.html" class="btn btn-primary-custom w-100"
-                            style="background-color: #f59e0b; border-color: #f59e0b;">
-                            New Order <i class="bi bi-arrow-right ms-2"></i>
-                        </a>
+                        <div class="flex-grow-1">
+                            <h3 class="fw-bold text-dark mb-1" id="topUserName">--</h3>
+                            <span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm"><i
+                                    class="bi bi-stars me-1"></i> #1 Buyer</span>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Order History Card -->
-            <div class="col-md-6 col-lg-3">
-                <div class="dashboard-card card p-4 border-0">
-                    <div class="card-body p-0">
-                        <div class="card-icon-container" style="background: #e2e8f0; color: #475569;">
-                            <i class="bi bi-clock-history"></i>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 border rounded-4 text-center bg-white shadow-sm">
+                                <h6 class="text-muted fw-bold mb-2 text-uppercase"
+                                    style="font-size: 0.75rem; letter-spacing: 0.5px;">Total Orders</h6>
+                                <h3 class="fw-bold mb-0 text-primary" id="topUserOrders">--</h3>
+                            </div>
                         </div>
-                        <h5 class="card-title">Order History</h5>
-                        <p class="card-text">View all pending and completed tiffin orders.</p>
-                        <a href="orders-history.html" class="btn btn-primary-custom w-100"
-                            style="background-color: #475569; border-color: #475569;">
-                            View Orders <i class="bi bi-arrow-right ms-2"></i>
-                        </a>
+                        <div class="col-6">
+                            <div class="p-3 border rounded-4 text-center bg-white shadow-sm">
+                                <h6 class="text-muted fw-bold mb-2 text-uppercase"
+                                    style="font-size: 0.75rem; letter-spacing: 0.5px;">Total Spent</h6>
+                                <h3 class="fw-bold mb-0 text-success" id="topUserSpent">₹--</h3>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Dashboard Lower Row -->
+        <div class="row g-4 mb-5 align-items-stretch">
+            <div class="col-lg-6">
+                <div class="premium-card p-4 h-100">
+                    <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-activity text-info me-2"></i>Daily Revenue</h5>
+                    <div style="height: 320px; position: relative; width: 100%;">
+                        <canvas id="dailyRevenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="premium-card p-4 d-flex flex-column justify-content-center align-items-center h-100">
+                    <h5 class="fw-bold mb-4 text-dark text-uppercase text-center" style="letter-spacing: 0.5px;">
+                        <i class="bi bi-bar-chart-fill text-success me-2"></i>Monthly Revenue
+                    </h5>
+                    <h2 class="fw-bold text-success mb-0" id="monthlyRevenueCardValue" style="font-size: 2.5rem;">
+                        Loading...</h2>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="./js/app.js"></script>
 </body>
 
 </html>
