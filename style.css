@@ -19,14 +19,35 @@ body {
 /* Navbar Enhancements */
 .navbar-custom {
   background: white;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  padding: 1rem 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  padding: 1.2rem 0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .navbar-brand {
-  font-weight: 700;
+  font-weight: 800;
   color: var(--primary-color) !important;
   font-size: 1.5rem;
+  letter-spacing: -0.5px;
+}
+
+.nav-link {
+  font-weight: 500;
+  color: var(--text-light);
+  border-radius: 8px;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #f1f5f9;
+  color: var(--text-dark);
+}
+
+.nav-link.active {
+  background-color: var(--primary-color);
+  color: white !important;
+  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
 }
 
 /* Card Enhancements */
@@ -99,43 +120,79 @@ body {
 }
 
 /* Tables */
-.table-custom {
+.table-premium {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
 }
 
-.table-custom th {
-  background-color: #f1f5f9;
-  font-weight: 600;
-  color: var(--text-dark);
+.table-premium th {
+  background-color: #f8fafc;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
   border-bottom: 2px solid var(--border-color);
-  padding: 1rem;
+  padding: 1.25rem 1.5rem;
 }
 
-.table-custom td {
-  padding: 1rem;
+.table-premium td {
+  padding: 1.25rem 1.5rem;
   vertical-align: middle;
   border-bottom: 1px solid var(--border-color);
+  color: var(--text-dark);
 }
 
-.table-custom tbody tr:hover {
+.table-premium tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-premium tbody tr:hover {
   background-color: #f8fafc;
+}
+
+/* Status Badges */
+.badge-created {
+  background-color: #e0e7ff;
+  color: #4338ca;
+  padding: 0.5em 0.8em;
+  font-weight: 600;
+}
+
+.badge-completed {
+  background-color: #d1fae5;
+  color: #059669;
+  padding: 0.5em 0.8em;
+  font-weight: 600;
+}
+
+.badge-cancelled {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 0.5em 0.8em;
+  font-weight: 600;
 }
 
 /* Forms & Inputs */
 .form-control,
 .form-select {
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid var(--border-color);
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+  background-color: #f8fafc;
 }
 
 .form-control:focus,
 .form-select:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  background-color: #ffffff;
 }
 
 /* Utility constraints */
@@ -143,4 +200,130 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
+}
+
+/* Analytics & Premium Cards */
+.premium-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  height: 100%;
+}
+
+.premium-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.1), 0 4px 10px -4px rgba(0, 0, 0, 0.05);
+  border-color: rgba(79, 70, 229, 0.2);
+}
+
+.profit-text {
+  color: var(--success-color);
+}
+
+.loss-text {
+  color: var(--danger-color);
+}
+
+.breakeven-text {
+  color: var(--text-light);
+}
+
+/* Top Dish Highlight Card */
+.top-dish-card {
+  background: linear-gradient(145deg, #ffffff 0%, #fff5f5 100%);
+  border: 1px solid #fecaca;
+  box-shadow: 0 4px 20px -4px rgba(239, 68, 68, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.top-dish-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #ef4444, #f59e0b);
+}
+
+.top-dish-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -6px rgba(239, 68, 68, 0.25);
+  border-color: #fca5a5;
+}
+
+.top-dish-title {
+  color: #dc2626 !important;
+}
+
+.top-dish-text {
+  font-size: 1.6rem;
+  letter-spacing: -0.5px;
+}
+
+/* ------------------------------------- */
+/* Mobile Responsiveness Enhancements    */
+/* ------------------------------------- */
+@media (max-width: 768px) {
+  .main-container {
+    padding: 1rem 0.75rem;
+  }
+
+  .navbar-nav {
+    margin-top: 1rem;
+    gap: 0.5rem !important;
+  }
+
+  .nav-link {
+    padding: 0.75rem 1rem !important;
+    text-align: center;
+  }
+
+  .nav-link.active::after {
+    display: none;
+    /* Hide bottom border on mobile collapse */
+  }
+
+  /* Ensure cards shrink padding cleanly */
+  .premium-card,
+  .dashboard-card {
+    padding: 1.25rem !important;
+  }
+
+  h2,
+  .display-6 {
+    font-size: 1.75rem !important;
+  }
+
+  h3 {
+    font-size: 1.5rem !important;
+  }
+
+  /* Improved table readability on mobile */
+  .table-premium th,
+  .table-premium td {
+    padding: 0.85rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    /* Prevent data crunching, relies on table-responsive scroll */
+  }
+
+  /* Full width buttons in modals and forms */
+  .modal-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .modal-footer>* {
+    margin: 0.25rem 0;
+    width: 100%;
+  }
+
+  /* Prevent chart overflows */
+  canvas {
+    max-width: 100%;
+  }
 }
