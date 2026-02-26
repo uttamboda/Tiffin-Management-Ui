@@ -68,6 +68,7 @@ export async function placeOrder(event) {
         return;
     }
 
+    const selectedDate = document.getElementById('orderDate').value;
     const payload = {
         userId: parseInt(userId),
         status: "CREATED",
@@ -77,6 +78,10 @@ export async function placeOrder(event) {
             sellingPrice: item.sellingPrice
         }))
     };
+
+    if (selectedDate && selectedDate.trim() !== "") {
+        payload.orderDate = selectedDate;   // format YYYY-MM-DD
+    }
 
     try {
         await apiFetch(`/orders`, {

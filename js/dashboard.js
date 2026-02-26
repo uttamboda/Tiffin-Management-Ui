@@ -6,7 +6,6 @@ import { showAlert } from './ui.js';
 // ==========================================
 
 export let globalTotalRevenue = 0;
-export let monthlyRevenueChartInstance = null;
 export let dailyRevenueChartInstance = null;
 
 export async function loadAnalyticsDashboard() {
@@ -32,6 +31,7 @@ export async function loadAnalyticsDashboard() {
         // Also trigger the other loaders if refresh is clicked
         loadAnalyticsCharts();
         loadTopUser();
+        loadMonthlyRevenueAnalytics();
 
         // Reset profit calculator on refresh
         const expenseInput = document.getElementById('expenseInput');
@@ -52,40 +52,7 @@ export async function loadAnalyticsDashboard() {
 }
 
 export async function loadAnalyticsCharts() {
-    try {
-        // Fetch Monthly Revenue Data
-        const revenueData = await apiFetch(`/analytics/revenue/monthly`);
 
-        const displayEl = document.getElementById('monthlyRevenueCardValue');
-        if (!displayEl) return;
-
-        if (!revenueData || revenueData.length === 0) {
-            displayEl.textContent = 'No data available';
-            displayEl.className = 'fw-bold text-muted mb-0';
-            displayEl.style.fontSize = '1.5rem';
-        } else {
-            // Get the latest month (last item in the array)
-            const latestMonth = revenueData[revenueData.length - 1];
-            const revenueAmount = latestMonth.revenue || 0;
-
-            // Format amount to format like 12,500
-            const formattedRevenue = revenueAmount.toLocaleString('en-IN', {
-                maximumFractionDigits: 0,
-                minimumFractionDigits: 0
-            });
-
-            displayEl.textContent = `₹ ${formattedRevenue}`;
-            displayEl.className = 'fw-bold text-success mb-0';
-            displayEl.style.fontSize = '2.5rem';
-        }
-    } catch (error) {
-        const displayEl = document.getElementById('monthlyRevenueCardValue');
-        if (displayEl) {
-            displayEl.textContent = 'No data available';
-            displayEl.className = 'fw-bold text-muted mb-0';
-            displayEl.style.fontSize = '1.5rem';
-        }
-    }
 
     try {
         // Fetch all orders and aggregate daily revenue (Line Chart)
@@ -226,5 +193,42 @@ export function calculateProfit() {
         display.className = 'fw-bold mb-0 loss-text';
         label.className += 'bg-danger';
         label.textContent = 'Loss';
+    }
+}
+
+export async function loadMonthlyRevenueAnalytics() {
+    try {
+        const revenueData = await apiFetch(`/analytics/revenue/monthly`);
+        const tbody = document.getElementById('monthlyRevenueTableBody');
+        if (!tbody) return;
+
+        if (!revenueData || revenueData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="2" class="text-center text-muted py-5">No monthly revenue data available</td></tr>';
+            return;
+        }
+
+        const sortedData = [...revenueData].sort((a, b) => new Date(b.month) - new Date(a.month));
+        const recentData = sortedData.slice(0, 12);
+
+        tbody.innerHTML = '';
+        recentData.forEach(item => {
+            const [year, monthNum] = item.month.split('-');
+            const dateObj = new Date(year, monthNum - 1);
+            const formattedMonth = dateObj.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="ps-4 py-3 fw-medium text-dark border-bottom">${formattedMonth}</td>
+                <td class="text-end pe-4 py-3 fw-bold text-success border-bottom">₹${item.revenue.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (error) {
+        console.error(`Error loading monthly revenue analytics: ${error.message}`);
+        const tbody = document.getElementById('monthlyRevenueTableBody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="2" class="text-center text-danger py-5">Failed to load data</td></tr>';
+        }
     }
 }
