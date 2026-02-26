@@ -61,11 +61,11 @@
         </div>
 
         <form id="orderForm">
-            <!-- Top Section: User Selection -->
+            <!-- Top Section: User and Date Selection -->
             <div class="row mb-4">
-                <div class="col-12">
+                <div class="col-md-6 mb-3 mb-md-0">
                     <!-- Search/Select User -->
-                    <div class="premium-card p-4">
+                    <div class="premium-card p-4 h-100">
                         <div class="d-flex align-items-center mb-3">
                             <div class="bg-primary bg-opacity-10 p-2 rounded text-primary me-3"><i
                                     class="bi bi-person-heart fs-5"></i></div>
@@ -74,6 +74,18 @@
                         <select id="orderUserSelect" class="form-select form-select-lg shadow-sm" required>
                             <option value="" disabled selected>Loading users...</option>
                         </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- Select Order Date -->
+                    <div class="premium-card p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-info bg-opacity-10 p-2 rounded text-info me-3"><i
+                                    class="bi bi-calendar-event fs-5"></i></div>
+                            <h5 class="fw-bold mb-0">Select Order Date (Optional)</h5>
+                        </div>
+                        <input type="date" class="form-control form-control-lg shadow-sm" id="orderDate"
+                            name="orderDate">
                     </div>
                 </div>
             </div>
