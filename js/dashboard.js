@@ -176,7 +176,12 @@ export function calculateProfit() {
 
     const netResult = globalTotalRevenue - expense;
 
-    display.textContent = `₹${Math.abs(netResult).toFixed(2)}`;
+    let profitPercentage = 0;
+    if (globalTotalRevenue > 0) {
+        profitPercentage = (netResult / globalTotalRevenue) * 100;
+    }
+
+    display.textContent = `₹${Math.abs(netResult).toFixed(2)} (${profitPercentage.toFixed(0)}%)`;
 
     // Clear old classes on badge
     label.className = 'badge px-3 py-2 rounded-pill shadow-sm ';

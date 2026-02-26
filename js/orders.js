@@ -4,6 +4,15 @@ import { orderCart, renderCart } from './cart.js';
 
 export async function loadOrderFormMetadata() {
     try {
+        const orderDateInput = document.getElementById('orderDate');
+        if (orderDateInput) {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            orderDateInput.value = `${yyyy}-${mm}-${dd}`;
+        }
+
         // Load Users
         const usersDataResp = await apiFetch(`/users?page=0&size=500`);
         const users = extractPaginatedData(usersDataResp);
