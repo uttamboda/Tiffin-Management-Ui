@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Tiffin Management</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 450px;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold mb-1"><i class="bi bi-box-seam-fill text-primary"></i> Tiffin Management</h3>
+            <p class="text-muted small">Create your tenant account</p>
+        </div>
+
+        <form id="registerForm">
+            <div id="registerError" class="alert alert-danger d-none py-2 small" role="alert"></div>
+            <div id="registerSuccess" class="alert alert-success d-none py-2 small" role="alert">Registration
+                successful! Redirecting to login...</div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label small fw-bold">Full Name</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i
+                            class="bi bi-person-badge text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0 bg-light" id="name" required
+                        placeholder="Enter full name">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="username" class="form-label small fw-bold">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0 bg-light" id="username" required
+                        placeholder="Choose a username">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label small fw-bold">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                    <input type="password" class="form-control border-start-0 ps-0 bg-light" id="password" required
+                        placeholder="Create a password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary-custom w-100 py-2 mb-3 fw-medium">
+                Register
+            </button>
+
+            <div class="text-center small">
+                <span class="text-muted">Already have an account? </span>
+                <a href="login.html" class="text-decoration-none fw-bold">Log in here</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Script for handling registration -->
+    <script type="module">
+        import { API_BASE_URL } from './js/api.js';
+
+        // Check if already logged in
+        if (localStorage.getItem('jwt_token')) {
+            window.location.href = 'shop-setup.html';
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const errorDiv = document.getElementById('registerError');
+            const successDiv = document.getElementById('registerSuccess');
+            const submitBtn = this.querySelector('button[type="submit"]');
+
+            // Loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Registering...';
+            errorDiv.classList.add('d-none');
+            successDiv.classList.add('d-none');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/tenant/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, username, password })
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = await response.text();
+                }
+
+                if (!response.ok) {
+                    const errorMsg = data && data.message ? data.message : (typeof data === 'string' ? data : "Registration failed.");
+                    throw new Error(errorMsg);
+                }
+
+                // Show success and redirect
+                successDiv.classList.remove('d-none');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error("Registration failed:", error);
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('d-none');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Register';
+            }
+        });
+    </script>
+</body>
+
+</html>

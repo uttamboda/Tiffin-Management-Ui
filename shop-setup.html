@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Up Shop - Tiffin Management</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .setup-card {
+            width: 100%;
+            max-width: 500px;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(13, 110, 253, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="setup-card" id="mainCard">
+        <!-- 1. Loading State -->
+        <div id="loadingState" class="text-center py-4">
+            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5 class="fw-bold text-muted">Checking Shop Status...</h5>
+        </div>
+
+        <!-- 2. Shop Exists State -->
+        <div id="shopExistsState" class="text-center d-none">
+            <div class="icon-wrapper bg-success bg-opacity-10 text-success">
+                <i class="bi bi-check-circle-fill fs-1"></i>
+            </div>
+            <h3 class="fw-bold mb-2">Welcome Back!</h3>
+            <p class="text-muted small mb-4">Your shop <strong id="displayShopName" class="text-dark"></strong> is
+                active.</p>
+
+            <button id="openDashboardBtn"
+                class="btn btn-success w-100 py-3 mb-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-layout-text-window-reverse"></i> Open Dashboard
+            </button>
+            <button type="button" class="btn btn-link text-muted w-100 text-decoration-none small logout-trigger">
+                Log Out
+            </button>
+        </div>
+
+        <!-- 3. Shop Registration State -->
+        <div id="setupFormState" class="d-none">
+            <div class="text-center mb-4">
+                <div class="icon-wrapper">
+                    <i class="bi bi-shop text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-2">Let's Set Up Your Shop</h3>
+                <p class="text-muted small">You need to create a shop before accessing the dashboard.</p>
+            </div>
+
+            <form id="shopForm">
+                <div id="shopError" class="alert alert-danger d-none py-2 small" role="alert"></div>
+
+                <div class="mb-4">
+                    <label for="shopName" class="form-label small fw-bold text-uppercase"
+                        style="letter-spacing: 0.5px;">Shop Name</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light border-end-0"><i
+                                class="bi bi-building text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0 bg-light fs-6" id="shopName" required
+                            placeholder="E.g., Ajay's Tiffin Center">
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="btn btn-primary w-100 py-3 mb-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-rocket-takeoff-fill"></i> Launch My Shop
+                </button>
+                <button type="button" class="btn btn-link text-muted w-100 text-decoration-none small logout-trigger">
+                    Log Out
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script for handling shop logic -->
+    <script type="module">
+        import { API_BASE_URL, apiFetch } from './js/api.js';
+
+        const token = localStorage.getItem('jwt_token');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        const logoutTriggers = document.querySelectorAll('.logout-trigger');
+        logoutTriggers.forEach(btn => {
+            btn.addEventListener('click', () => {
+                localStorage.removeItem('jwt_token');
+                localStorage.removeItem('shop_setup_complete');
+                localStorage.removeItem('tenant_username');
+                window.location.href = 'login.html';
+            });
+        });
+
+        // UI references
+        const loadingState = document.getElementById('loadingState');
+        const shopExistsState = document.getElementById('shopExistsState');
+        const setupFormState = document.getElementById('setupFormState');
+
+        // Step 1: Immediately check shop status via the dashboard ping
+        async function checkShopStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/analytics/dashboard`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('jwt_token');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (response.ok) {
+                    // Shop exists! Show the simple shop card.
+                    loadingState.classList.add('d-none');
+                    shopExistsState.classList.remove('d-none');
+
+                    // Attempt to display a friendly shop name or fallback
+                    const username = localStorage.getItem('tenant_username') || 'Active Shop';
+                    document.getElementById('displayShopName').textContent = `'${username}'`;
+                    localStorage.setItem('shop_setup_complete', 'true');
+
+                } else {
+                    const errorData = await response.json().catch(() => null);
+                    const errorMsg = errorData?.message || "";
+
+                    // If shop mapping is not found (500 exception or 404 conceptually) -> Show Registration
+                    if (response.status === 404 || errorMsg.includes("Shop mapping not found")) {
+                        loadingState.classList.add('d-none');
+                        setupFormState.classList.remove('d-none');
+                    } else {
+                        // generic backend failure, still show form or fallback
+                        loadingState.classList.add('d-none');
+                        setupFormState.classList.remove('d-none');
+                    }
+                }
+            } catch (err) {
+                console.error("Error pinging dashboard API:", err);
+                loadingState.classList.add('d-none');
+                setupFormState.classList.remove('d-none');
+            }
+        }
+
+        // Initialize
+        checkShopStatus();
+
+        // Step 2: Handle Open Dashboard Button Click
+        document.getElementById('openDashboardBtn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Step 3: Handle Shop Creation Form Submit
+        document.getElementById('shopForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const shopName = document.getElementById('shopName').value;
+            const errorDiv = document.getElementById('shopError');
+            const submitBtn = this.querySelector('button[type="submit"]');
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Creating Shop...';
+            errorDiv.classList.add('d-none');
+
+            try {
+                // apiFetch already automatically attaches the JWT token
+                await apiFetch('/api/shop/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ shopName })
+                });
+
+                // Since we successfully registered, immediately drop them into the dashboard
+                localStorage.setItem('shop_setup_complete', 'true');
+                window.location.href = 'index.html';
+
+            } catch (error) {
+                console.error("Shop registration failed:", error);
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('d-none');
+
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-rocket-takeoff-fill"></i> Launch My Shop';
+            }
+        });
+    </script>
+</body>
+
+</html>
