@@ -9,11 +9,22 @@ import * as dashboard from './dashboard.js';
 // and dynamic elements generated using innerHTML inside specific components continue perfectly without edits.
 Object.assign(window, api, ui, cart, orders, dashboard);
 
-window.logout = function () {
-    localStorage.removeItem('jwt_token');
-    localStorage.removeItem('tenant_username');
-    localStorage.removeItem('shop_setup_complete');
-    window.location.href = 'login.html';
+window.logout = async function () {
+    try {
+        const token = localStorage.getItem('jwt_token');
+        if (token) {
+            // Attempt to hit backend blacklist endpoint
+            await api.apiFetch('/api/tenant/logout', { method: 'POST' });
+        }
+    } catch (e) {
+        console.warn('Backend logout failed or session already expired:', e);
+    } finally {
+        // ALWAYS clear local state to prevent accessing dashboard
+        localStorage.removeItem('jwt_token');
+        localStorage.removeItem('tenant_username');
+        localStorage.removeItem('shop_setup_complete');
+        window.location.href = 'login.html';
+    }
 };
 
 // ==========================================

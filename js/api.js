@@ -1,5 +1,5 @@
-export const API_BASE_URL = 'https://fine-very-photographs-down.trycloudflare.com';
-// export const API_BASE_URL = 'http://localhost:8080';
+// export const API_BASE_URL = 'https://fine-very-photographs-down.trycloudflare.com';
+export const API_BASE_URL = 'http://localhost:9090';
 
 // ==========================================
 // API SERVICE HANDLER & UTILS
