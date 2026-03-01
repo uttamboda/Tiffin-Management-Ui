@@ -151,6 +151,13 @@ export async function deleteMenu(id) {
 // USER MANAGEMENT
 // ==========================================
 
+export function maskPhoneNumber(number) {
+    if (!number) return '';
+    number = number.toString();
+    if (number.length <= 3) return 'xxx';
+    return number.slice(0, -3) + 'xxx';
+}
+
 export async function loadUsers() {
     try {
         const responseData = await apiFetch(`/users?page=0&size=500`);
@@ -166,11 +173,12 @@ export async function loadUsers() {
         }
 
         data.forEach(user => {
+            const maskedPhone = maskPhoneNumber(user.phone);
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="text-secondary fw-medium">#${user.id}</td>
                 <td class="fw-bold text-dark"><i class="bi bi-person-circle text-primary me-2"></i>${user.name}</td>
-                <td class="text-secondary"><i class="bi bi-telephone text-muted me-2"></i>${user.phone}</td>
+                <td class="text-secondary"><i class="bi bi-telephone text-muted me-2"></i>${maskedPhone}</td>
             `;
             tbody.appendChild(tr);
         });
