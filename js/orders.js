@@ -21,7 +21,7 @@ export async function loadOrderFormMetadata() {
         if (userSelect && users.length > 0) {
             userSelect.innerHTML = '<option value="" disabled selected>-- Select a User --</option>';
             users.forEach(u => {
-                userSelect.innerHTML += `<option value="${u.id}">${u.name} (${u.phone})</option>`;
+                userSelect.innerHTML += `<option value="${u.id}">${u.name}</option>`;
             });
         }
 
